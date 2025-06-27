@@ -89,6 +89,24 @@ local Games = {
 
             return ""
         end
+    },
+
+    [2862098693] = { -- Project Delta
+        Weapon = function(Character)
+            local Items = {}
+
+            for _, Child in ipairs(Character:get_children()) do
+                if Child.class_name == "Model" and Child:find_first_child("ItemRoot") then
+                    table.insert(Items, Child.name)
+                end
+            end
+
+            if #Items > 0 then
+                return table.concat(Items, ", ")
+            else
+                return ""
+            end
+        end
     }
 }
 
