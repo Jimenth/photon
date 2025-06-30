@@ -20,6 +20,22 @@ WeaponColor:change_callback(function()
 end)
 
 local Games = {
+    [3747388906] = { -- Fallen Survival
+       Weapon = function(Character)
+           for _, Child in ipairs(Character:get_children()) do
+               if Child.class_name == "Model"
+                   and Child:find_first_child("Handle")
+                   and Child.name:sub(1, 5) ~= "Armor"
+                   and Child.name ~= "Hair"
+                   and Child.name ~= "HolsterModel"
+                then
+                    return Child.name or ""
+                end
+            end
+            return ""
+        end
+    },
+
     [1865489894] = { -- Base Battles
         Weapon = function(Character)
             for _, Child in ipairs(Character:get_children()) do
