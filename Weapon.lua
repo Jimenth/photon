@@ -20,6 +20,19 @@ WeaponColor:change_callback(function()
 end)
 
 local Games = {
+    [358276974] = { -- AR2
+        Weapon = function(Character)
+            local Equipped = Character:find_first_child("Equipped")
+            local Weapon = Equipped:get_children()[1]
+            if Weapon then
+                print(Weapon.name)
+                return Weapon.name or ""
+            end
+
+            return ""
+        end
+    },
+
     [3747388906] = { -- Fallen Survival
        Weapon = function(Character)
            for _, Child in ipairs(Character:get_children()) do
