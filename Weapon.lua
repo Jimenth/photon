@@ -7,8 +7,8 @@ local UI = gui.create("Better Weapon ESP", false)
 UI:set_pos(100, 100)
 UI:set_size(400, 300)
 
-local EnableWeapon = UI:add_checkbox("enable_weapon", "Enabled", _G.EnableWeapon)
-local WeaponColor = UI:add_color("weapon_color", "Color", _G.WeaponColor)
+local EnableWeapon = UI:add_checkbox("Enabled", _G.EnableWeapon)
+local WeaponColor = UI:add_color("Color", _G.WeaponColor)
 
 EnableWeapon:change_callback(function()
     _G.EnableWeapon = EnableWeapon:get_value()
@@ -25,7 +25,6 @@ local Games = {
             local Equipped = Character:find_first_child("Equipped")
             local Weapon = Equipped:get_children()[1]
             if Weapon then
-                print(Weapon.name)
                 return Weapon.name or ""
             end
 
