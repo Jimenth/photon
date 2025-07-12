@@ -71,7 +71,7 @@ hook.add("init_custom_entity", "universal_npc", function()
     if not EntityRoot or not EntityRoot:isvalid() then return end
 
     for _, NPC in ipairs(EntityRoot:get_children()) do
-        if NPC:isa("Model") and NPC:find_first_child("Humanoid") and NPC:isvalid() then
+        if NPC:isa("Model") and NPC:find_first_child_class("Humanoid") and NPC:isvalid() then
             local Humanoid = NPC:find_first_child_class("Humanoid")
             local HumanoidRootPart = NPC:find_first_child("HumanoidRootPart")
 
