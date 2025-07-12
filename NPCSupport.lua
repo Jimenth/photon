@@ -70,17 +70,17 @@ hook.add("init_custom_entity", "universal_npc", function()
     local EntityRoot = EntitySource()
     if not EntityRoot or not EntityRoot:isvalid() then return end
 
-    for _, Descendant in ipairs(EntityRoot:get_children()) do
-        if Descendant:isa("Model") and Descendant:find_first_child("Humanoid") and Descendant:isvalid() then
-            local Humanoid = Descendant:find_first_child("Humanoid")
-            local HumanoidRootPart = Descendant:find_first_child("HumanoidRootPart")
+    for _, NPC in ipairs(EntityRoot:get_children()) do
+        if NPC:isa("Model") and NPC:find_first_child("Humanoid") and NPC:isvalid() then
+            local Humanoid = NPC:find_first_child_class("Humanoid")
+            local HumanoidRootPart = NPC:find_first_child("HumanoidRootPart")
 
             if Humanoid and Humanoid:isvalid() then
-                if Descendant.name ~= Self.name and HumanoidRootPart:isvalid() then
+                if NPC.name ~= Self.name and HumanoidRootPart:isvalid() then
                     local MinBound = vector3(math.huge, math.huge, math.huge)
                     local MaxBound = vector3(-math.huge, -math.huge, -math.huge)
 
-                    for _, Part in ipairs(Descendant:get_children()) do
+                    for _, Part in ipairs(NPC:get_children()) do
                         if (Part:isa("MeshPart") or Part:isa("Part")) and Part:isvalid() then
                             local Pos = Part.position
                             local Size = Part.size / 2
@@ -103,7 +103,7 @@ hook.add("init_custom_entity", "universal_npc", function()
                     end
 
                     local BoundingSize = MaxBound - MinBound
-                    add_entity(Descendant.name, HumanoidRootPart, Humanoid, true, BoundingSize / 2, BoundingSize / 2)
+                    add_entity(NPC.name, HumanoidRootPart, Humanoid, true, BoundingSize / 2, BoundingSize / 2)
                 end
             end
         end
