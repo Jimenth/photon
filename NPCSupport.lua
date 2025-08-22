@@ -5,6 +5,12 @@ local GameID = tonumber(get_gameid())
 local Self = Players.local_player
 
 local Paths = {
+    [7794218964] = function() -- Noob Mayhem
+         return Workspace:find_first_child("Allnoobs")
+    end,
+    [4919010625] = function() -- Criminal Tycoon
+    return Workspace:find_first_child("AIs")
+    end,
     [962862716] = function() -- AimH4X
         return Workspace:find_first_child("CurrentBots")
     end,
@@ -60,6 +66,10 @@ local Paths = {
     [6907570572] = function() -- A-888
         local M = Workspace:find_first_child("mainGame")
         return M and M:find_first_child("active_anomaly")
+    end,
+    [324740177] = function() -- Entry Point
+        local Level = Workspace and Workspace:find_first_child("Level")
+        return Level:isvalid() and Level:find_first_child("Actors")
     end
 }
 
@@ -71,16 +81,17 @@ hook.add("init_custom_entity", "universal_npc", function()
     if not EntityRoot or not EntityRoot:isvalid() then return end
 
     for _, NPC in ipairs(EntityRoot:get_children()) do
-        if NPC:isa("Model") and NPC:find_first_child_class("Humanoid") and NPC:isvalid() then
-            local Humanoid = NPC:find_first_child_class("Humanoid")
-            local HumanoidRootPart = NPC:find_first_child("HumanoidRootPart")
+        local Character = (GameID == 324740177 and NPC:find_first_child("Character")) or NPC
+        if Character:isvalid() and Character:isa("Model") and Character:find_first_child_class("Humanoid") then
+            local Humanoid = Character:find_first_child_class("Humanoid")
+            local HumanoidRootPart = Character:find_first_child("HumanoidRootPart")
 
             if Humanoid and Humanoid:isvalid() then
-                if NPC.name ~= Self.name and HumanoidRootPart:isvalid() then
+                if Character.name ~= Self.name and HumanoidRootPart:isvalid() then
                     local MinBound = vector3(math.huge, math.huge, math.huge)
                     local MaxBound = vector3(-math.huge, -math.huge, -math.huge)
 
-                    for _, Part in ipairs(NPC:get_children()) do
+                    for _, Part in ipairs(Character:get_children()) do
                         if (Part:isa("MeshPart") or Part:isa("Part")) and Part:isvalid() then
                             local Pos = Part.position
                             local Size = Part.size / 2
@@ -103,7 +114,12 @@ hook.add("init_custom_entity", "universal_npc", function()
                     end
 
                     local BoundingSize = MaxBound - MinBound
-                    add_entity(NPC.name, HumanoidRootPart, Humanoid, true, BoundingSize / 2, BoundingSize / 2)
+
+                    if BoundingSize.x > 10 or BoundingSize.y > 10 or BoundingSize.z > 10 then
+                        BoundingSize = vector3(3, 4, 3)
+                    end
+
+                    add_entity(Character.name, HumanoidRootPart, Humanoid, true, BoundingSize / 2, BoundingSize / 2)
                 end
             end
         end
