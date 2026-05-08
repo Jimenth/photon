@@ -7,8 +7,62 @@ local Module = {
     Stored = {
         Cache = {},
         Folders = {}
+    },
+    Data = {
+        R15 = {
+            Head = "Head",
+            UpperTorso = "UpperTorso",
+            LowerTorso = "LowerTorso",
+            LeftUpperArm = "LeftUpperArm",
+            LeftLowerArm = "LeftLowerArm",
+            LeftHand = "LeftHand",
+            RightUpperArm = "RightUpperArm",
+            RightLowerArm = "RightLowerArm",
+            RightHand = "RightHand",
+            LeftUpperLeg = "LeftUpperLeg",
+            LeftLowerLeg = "LeftLowerLeg",
+            LeftFoot = "LeftFoot",
+            RightUpperLeg = "RightUpperLeg",
+            RightLowerLeg = "RightLowerLeg",
+            RightFoot = "RightFoot"
+        },
+
+        R6 = {
+            Head = "Head",
+            Torso = "Torso",
+            ["Left Arm"] = "Left Arm",
+            ["Right Arm"] = "Right Arm",
+            ["Left Leg"] = "Left Leg",
+            ["Right Leg"] = "Right Leg"
+        }
     }
 }
+
+function Module.Function:GetBodyData(Model)
+    if not Model then return nil end
+
+    local Humanoid = Model:find_first_child_class("Humanoid")
+    if not Humanoid then return nil end
+
+    local RigType = Humanoid:get_rigtype()
+    local BodyData = {}
+    local Data
+
+    if RigType == 1 then
+        Data = Module.Data.R15
+    elseif RigType == 0 then
+        Data = Module.Data.R6
+    else
+        return nil
+    end
+
+    for Key, Name in pairs(Data) do
+        local Part = Model:find_first_child(Name)
+        table.insert(BodyData, { Key, Part })
+    end
+
+    return BodyData
+end
 
 function Module.Function:IsCharacter(Model)
     for _, Player in ipairs(Module.Service.Players:get_children()) do
@@ -76,7 +130,7 @@ end)
 
 hook.add("init_custom_entity", "universal_npc", function()
     for _, Entity in pairs(Module.Stored.Cache) do
-        if Entity:isvalid() and Entity:get_parent() then
+        if Entity:isvalid() and Entity:get_parent() and not Module.Function:IsCharacter(Entity) then
             local Humanoid = Entity:find_first_child_class("Humanoid")
             local HumanoidRootPart = Entity:find_first_child("HumanoidRootPart")
 
@@ -114,7 +168,7 @@ hook.add("init_custom_entity", "universal_npc", function()
                     BoundingSize = vector3(3, 4, 3)
                 end
 
-                add_entity(Entity.name, HumanoidRootPart, Humanoid, true, BoundingSize / 2, BoundingSize / 2)
+                add_entity_ex(Entity.name, Entity, Humanoid, HumanoidRootPart, true, BoundingSize / 2, BoundingSize / 2, Module.Function:GetBodyData(Entity))
             end
         end
     end
