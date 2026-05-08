@@ -1,126 +1,120 @@
-local Workspace = game:get_service("Workspace")
-local Players = game:get_service("Players")
-
-local GameID = tonumber(get_gameid())
-local Self = Players.local_player
-
-local Paths = {
-    [7794218964] = function() -- Noob Mayhem
-         return Workspace:find_first_child("Allnoobs")
-    end,
-    [4919010625] = function() -- Criminal Tycoon
-    return Workspace:find_first_child("AIs")
-    end,
-    [962862716] = function() -- AimH4X
-        return Workspace:find_first_child("CurrentBots")
-    end,
-    [187796008] = function() -- Those Who Remain
-        local E = Workspace:find_first_child("Entities")
-        return E and E:find_first_child("Infected")
-    end,
-    [3104101863] = function() -- Michael's Zombies
-        local I = Workspace:find_first_child("Ignore")
-        return I and I:find_first_child("Zombies")
-    end,
-    [504035427] = function() -- Zombie Attack
-        return Workspace:find_first_child("enemies")
-    end,
-    [3349613241] = function() -- AI Test
-        return Workspace:find_first_child("NPCs")
-    end,
-    [1709832923] = function() -- Zombie Uprising
-        return Workspace:find_first_child("Zombies")
-    end,
-    [169302362] = function() -- Project Lazarus
-        return Workspace:find_first_child("Baddies")
-    end,
-    [3956073837] = function() -- Korrupt Zombies
-        return Workspace:find_first_child("Zombies")
-    end,
-    [2263267302] = function() -- Infamy
-        local N = Workspace:find_first_child("NPCs")
-        return N and N:find_first_child("policeForce")
-    end,
-    [2575793677] = function() -- Aniphobia
-        return Workspace:find_first_child("OtherWaifus")
-    end,
-    [3326279937] = function() -- Blackout Zombies
-        local N = Workspace:find_first_child("NPCs")
-        return N and N:find_first_child("Custom")
-    end,
-    [1000233041] = function() -- SCP 3008
-        local G = Workspace:find_first_child("GameObjects")
-        local P = G and G:find_first_child("Physical")
-        return P and P:find_first_child("Employees")
-    end,
-    [5091490171] = function() -- Jailbird Co-Op
-        return Workspace:find_first_child("Bots")
-    end,
-    [1003981402] = function() -- Reminiscence Zombies
-        return Workspace:find_first_child("Zombies")
-    end,
-    [3747388906] = function() -- Fallen Survival
-        local M = Workspace:find_first_child("Military")
-        return M and M:get_children()
-    end,
-    [6907570572] = function() -- A-888
-        local M = Workspace:find_first_child("mainGame")
-        return M and M:find_first_child("active_anomaly")
-    end,
-    [324740177] = function() -- Entry Point
-        local Level = Workspace and Workspace:find_first_child("Level")
-        return Level:isvalid() and Level:find_first_child("Actors")
-    end
+local Module = {
+    Function = {},
+    Service = {
+        Workspace = game:get_service("Workspace"),
+        Players = game:get_service("Players")
+    },
+    Stored = {
+        Cache = {},
+        Folders = {}
+    }
 }
 
+function Module.Function:IsCharacter(Model)
+    for _, Player in ipairs(Module.Service.Players:get_children()) do
+        if Player.class_name == "Player" then
+            local Character = Player.character
+            if Character and Character:isvalid() and Character.identity == Model.identity then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+function Module.Function:Scan()
+    Module.Stored.Folders = {}
+
+    local Temporary = {}
+
+    for _, Humanoid in ipairs(Module.Service.Workspace:get_descendants()) do
+        if Humanoid:isvalid() and Humanoid:isa("Humanoid") then
+            local Entity = Humanoid:get_parent()
+
+            if Entity and Entity:isvalid() and Entity:isa("Model") and not Module.Function:IsCharacter(Entity) then
+                local Folder = Entity:get_parent()
+
+                if Folder and Folder:isvalid() and not Temporary[Folder] then
+                    Temporary[Folder] = true
+                    table.insert(Module.Stored.Folders, Folder)
+                end
+            end
+        end
+    end
+end
+
+function Module.Function:Cache()
+    for Identity, Entity in pairs(Module.Stored.Cache) do
+        if not Entity:isvalid() or not Entity:get_parent() then
+            Module.Stored.Cache[Identity] = nil
+        end
+    end
+    
+    for _, Directory in ipairs(Module.Stored.Folders) do
+        for _, Entity in ipairs(Directory:get_children()) do
+            if Entity:isvalid() and Entity:get_parent() and Entity:isa("Model") then
+                Module.Stored.Cache[Entity.identity] = Entity
+            end
+        end
+    end
+end
+
+local UI = gui.create("$", false)
+UI:set_pos(100, 100)
+UI:set_size(300, 300)
+
+UI:add_button("Rescan", function()
+    Module.Function:Scan()
+end)
+
+spawn(function()
+    while true do
+        wait(1000)
+        Module.Function:Cache()
+    end
+end)
+
 hook.add("init_custom_entity", "universal_npc", function()
-    local EntitySource = Paths[GameID]
-    if not EntitySource then return end
+    for _, Entity in pairs(Module.Stored.Cache) do
+        if Entity:isvalid() and Entity:get_parent() then
+            local Humanoid = Entity:find_first_child_class("Humanoid")
+            local HumanoidRootPart = Entity:find_first_child("HumanoidRootPart")
 
-    local EntityRoot = EntitySource()
-    if not EntityRoot or not EntityRoot:isvalid() then return end
+            if Humanoid and Humanoid:isvalid() and HumanoidRootPart and HumanoidRootPart:isvalid() then
+                local BoundingSize
 
-    for _, NPC in ipairs(EntityRoot:get_children()) do
-        local Character = (GameID == 324740177 and NPC:find_first_child("Character")) or NPC
-        if Character:isvalid() and Character:isa("Model") and Character:find_first_child_class("Humanoid") then
-            local Humanoid = Character:find_first_child_class("Humanoid")
-            local HumanoidRootPart = Character:find_first_child("HumanoidRootPart")
-
-            if Humanoid and Humanoid:isvalid() then
-                if Character.name ~= Self.name and HumanoidRootPart:isvalid() then
+                if #Module.Stored.Cache < 25 then
                     local MinBound = vector3(math.huge, math.huge, math.huge)
                     local MaxBound = vector3(-math.huge, -math.huge, -math.huge)
 
-                    for _, Part in ipairs(Character:get_children()) do
-                        if (Part:isa("MeshPart") or Part:isa("Part")) and Part:isvalid() then
-                            local Pos = Part.position
+                    for _, Part in ipairs(Entity:get_children()) do
+                        if Part:isvalid() and (Part:isa("MeshPart") or Part:isa("Part")) then
+                            local Position = Part.position
                             local Size = Part.size / 2
 
-                            local PartMin = Pos - Size
-                            local PartMax = Pos + Size
-
                             MinBound = vector3(
-                                math.min(MinBound.x, PartMin.x),
-                                math.min(MinBound.y, PartMin.y),
-                                math.min(MinBound.z, PartMin.z)
+                                math.min(MinBound.x, (Position - Size).x),
+                                math.min(MinBound.y, (Position - Size).y),
+                                math.min(MinBound.z, (Position - Size).z)
                             )
-
                             MaxBound = vector3(
-                                math.max(MaxBound.x, PartMax.x),
-                                math.max(MaxBound.y, PartMax.y),
-                                math.max(MaxBound.z, PartMax.z)
+                                math.max(MaxBound.x, (Position + Size).x),
+                                math.max(MaxBound.y, (Position + Size).y),
+                                math.max(MaxBound.z, (Position + Size).z)
                             )
                         end
                     end
 
-                    local BoundingSize = MaxBound - MinBound
+                    BoundingSize = MaxBound - MinBound
 
                     if BoundingSize.x > 10 or BoundingSize.y > 10 or BoundingSize.z > 10 then
                         BoundingSize = vector3(3, 4, 3)
                     end
-
-                    add_entity(Character.name, HumanoidRootPart, Humanoid, true, BoundingSize / 2, BoundingSize / 2)
+                else
+                    BoundingSize = vector3(3, 4, 3)
                 end
+
+                add_entity(Entity.name, HumanoidRootPart, Humanoid, true, BoundingSize / 2, BoundingSize / 2)
             end
         end
     end
